@@ -8,7 +8,7 @@ class Config:
     """Base configuration for the Trekking Management application."""
 
     # Used by Flask to secure sessions and Flask-Login cookies.
-    SECRET_KEY = os.environ.get("SECRET_KEY", "change-this-secret-key")
+    SECRET_KEY = os.environ.get("SECRET_KEY", "DanishUllahKhan")
 
     # SQLite database stored inside the instance/ folder.
     SQLALCHEMY_DATABASE_URI = "sqlite:///" + os.path.join(
