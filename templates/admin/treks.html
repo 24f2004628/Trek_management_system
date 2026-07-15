@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Treks{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Manage Treks</h2>
+    <a class="btn btn-success" href="{{ url_for('admin.create_trek') }}">
+        + New Trek
+    </a>
+</div>
+
+<form class="row g-2 mb-3" method="GET" action="{{ url_for('admin.list_treks') }}">
+    <div class="col-auto">
+        <input type="text" name="q" class="form-control"
+               placeholder="Search by name or location" value="{{ q }}">
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-secondary">Search</button>
+    </div>
+    {% if q %}
+    <div class="col-auto">
+        <a class="btn btn-link" href="{{ url_for('admin.list_treks') }}">Clear</a>
+    </div>
+    {% endif %}
+</form>
+
+{% if treks %}
+<div class="table-responsive">
+    <table class="table table-striped table-bordered align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Location</th>
+                <th>Difficulty</th>
+                <th>Duration</th>
+                <th>Slots</th>
+                <th>Status</th>
+                <th>Staff</th>
+                <th class="text-center">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for trek in treks %}
+            <tr>
+                <td>{{ trek.id }}</td>
+                <td>{{ trek.name }}</td>
+                <td>{{ trek.location }}</td>
+                <td>{{ trek.difficulty or '-' }}</td>
+                <td>{{ trek.duration }} day(s)</td>
+                <td>{{ trek.available_slots }}</td>
+                <td>
+                    <span class="badge bg-secondary">{{ trek.status }}</span>
+                </td>
+                <td>
+                    <form class="d-flex gap-1" method="POST"
+                          action="{{ url_for('admin.assign_staff', trek_id=trek.id) }}">
+                        <select name="staff_id" class="form-select form-select-sm">
+                            <option value="">Unassigned</option>
+                            {% for staff in staff_members %}
+                            <option value="{{ staff.id }}"
+                                    {{ 'selected' if trek.staff_id == staff.id else '' }}>
+                                {{ staff.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-outline-primary">
+                            Assign
+                        </button>
+                    </form>
+                </td>
+                <td class="text-center text-nowrap">
+                    <a class="btn btn-sm btn-primary"
+                       href="{{ url_for('admin.edit_trek', trek_id=trek.id) }}">
+                        Edit
+                    </a>
+                    <form class="d-inline" method="POST"
+                          action="{{ url_for('admin.delete_trek', trek_id=trek.id) }}"
+                          onsubmit="return confirm('Delete this trek?');">
+                        <button type="submit" class="btn btn-sm btn-danger">
+                            Delete
+                        </button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p class="text-muted">No treks yet. Click "New Trek" to add one.</p>
+{% endif %}
+{% endblock %}

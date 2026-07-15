@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Staff{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Manage Staff</h2>
+
+<form class="row g-2 mb-3" method="GET" action="{{ url_for('admin.list_staff') }}">
+    <div class="col-auto">
+        <input type="text" name="q" class="form-control"
+               placeholder="Search by name or email" value="{{ q }}">
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-secondary">Search</button>
+    </div>
+    {% if q %}
+    <div class="col-auto">
+        <a class="btn btn-link" href="{{ url_for('admin.list_staff') }}">Clear</a>
+    </div>
+    {% endif %}
+</form>
+
+{% if staff %}
+<div class="table-responsive">
+    <table class="table table-striped table-bordered align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Approval</th>
+                <th>Status</th>
+                <th class="text-center">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for member in staff %}
+            <tr>
+                <td>{{ member.id }}</td>
+                <td>{{ member.name }}</td>
+                <td>{{ member.email }}</td>
+                <td>
+                    {% if member.approved %}
+                    <span class="badge bg-success">Approved</span>
+                    {% else %}
+                    <span class="badge bg-warning text-dark">Pending</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if member.blacklisted %}
+                    <span class="badge bg-danger">Blacklisted</span>
+                    {% else %}
+                    <span class="badge bg-secondary">Active</span>
+                    {% endif %}
+                </td>
+                <td class="text-center text-nowrap">
+                    {% if not member.approved %}
+                    <form class="d-inline" method="POST"
+                          action="{{ url_for('admin.approve_staff', user_id=member.id) }}">
+                        <button class="btn btn-sm btn-success">Approve</button>
+                    </form>
+                    {% endif %}
+                    <form class="d-inline" method="POST"
+                          action="{{ url_for('admin.toggle_blacklist', user_id=member.id) }}">
+                        {% if member.blacklisted %}
+                        <button class="btn btn-sm btn-outline-success">
+                            Un-blacklist
+                        </button>
+                        {% else %}
+                        <button class="btn btn-sm btn-outline-danger">
+                            Blacklist
+                        </button>
+                        {% endif %}
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p class="text-muted">No staff found.</p>
+{% endif %}
+{% endblock %}

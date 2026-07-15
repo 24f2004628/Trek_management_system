@@ -1,0 +1,59 @@
+/* Custom styles for the Trekking Management App */
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #f6f8f7;
+}
+
+main {
+    flex: 1;
+}
+
+/* Give the brand a little breathing room. */
+.navbar-brand {
+    letter-spacing: 0.3px;
+}
+
+/* Cards: soft borders and a gentle lift on hover. */
+.card {
+    border: none;
+    border-radius: 0.6rem;
+}
+
+.card.shadow-sm {
+    transition: box-shadow 0.15s ease-in-out, transform 0.15s ease-in-out;
+}
+
+.card.shadow-sm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1) !important;
+}
+
+/* Dashboard statistic cards: coloured accent bar on the left. */
+.stat-card {
+    border-left: 4px solid #198754;
+}
+
+.stat-card .stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1;
+}
+
+.stat-card .stat-label {
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.8rem;
+}
+
+/* Tables: align headers and keep them readable. */
+.table > :not(caption) > * > * {
+    vertical-align: middle;
+}
+
+/* Consistent page heading spacing. */
+h2 {
+    font-weight: 600;
+}

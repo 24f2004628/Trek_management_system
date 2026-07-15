@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Users{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Manage Users</h2>
+
+<form class="row g-2 mb-3" method="GET" action="{{ url_for('admin.list_users') }}">
+    <div class="col-auto">
+        <input type="text" name="q" class="form-control"
+               placeholder="Search by name or email" value="{{ q }}">
+    </div>
+    <div class="col-auto">
+        <button type="submit" class="btn btn-outline-secondary">Search</button>
+    </div>
+    {% if q %}
+    <div class="col-auto">
+        <a class="btn btn-link" href="{{ url_for('admin.list_users') }}">Clear</a>
+    </div>
+    {% endif %}
+</form>
+
+{% if users %}
+<div class="table-responsive">
+    <table class="table table-striped table-bordered align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>#</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Status</th>
+                <th class="text-center">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for user in users %}
+            <tr>
+                <td>{{ user.id }}</td>
+                <td>{{ user.name }}</td>
+                <td>{{ user.email }}</td>
+                <td>
+                    {% if user.blacklisted %}
+                    <span class="badge bg-danger">Blacklisted</span>
+                    {% else %}
+                    <span class="badge bg-success">Active</span>
+                    {% endif %}
+                </td>
+                <td class="text-center">
+                    <form method="POST"
+                          action="{{ url_for('admin.toggle_blacklist', user_id=user.id) }}">
+                        {% if user.blacklisted %}
+                        <button class="btn btn-sm btn-success">Un-blacklist</button>
+                        {% else %}
+                        <button class="btn btn-sm btn-danger">Blacklist</button>
+                        {% endif %}
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p class="text-muted">No users found.</p>
+{% endif %}
+{% endblock %}

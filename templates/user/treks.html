@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %}Available Treks{% endblock %}
+
+{% block content %}
+<h2 class="mb-3">Available Treks</h2>
+
+{% if treks %}
+<div class="row">
+    {% for trek in treks %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100 shadow-sm">
+            <div class="card-body">
+                <h5 class="card-title">{{ trek.name }}</h5>
+                <h6 class="card-subtitle mb-2 text-muted">
+                    {{ trek.location }}
+                </h6>
+                <p class="card-text">
+                    {{ trek.description or 'No description available.' }}
+                </p>
+                <ul class="list-unstyled small mb-3">
+                    <li><strong>Difficulty:</strong> {{ trek.difficulty or '-' }}</li>
+                    <li><strong>Duration:</strong> {{ trek.duration }} day(s)</li>
+                    <li><strong>Slots left:</strong> {{ trek.available_slots }}</li>
+                    {% if trek.start_date %}
+                    <li><strong>Start:</strong> {{ trek.start_date }}</li>
+                    {% endif %}
+                </ul>
+            </div>
+            <div class="card-footer bg-white border-0">
+                {% if current_user.is_authenticated %}
+                    {% if trek.available_slots > 0 %}
+                    <form method="POST"
+                          action="{{ url_for('user.book_trek', trek_id=trek.id) }}">
+                        <button type="submit" class="btn btn-success w-100">
+                            Book Now
+                        </button>
+                    </form>
+                    {% else %}
+                    <button class="btn btn-secondary w-100" disabled>
+                        Fully Booked
+                    </button>
+                    {% endif %}
+                {% else %}
+                    <a class="btn btn-outline-success w-100"
+                       href="{{ url_for('auth.login') }}">Login to Book</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<p class="text-muted">There are no treks available right now.</p>
+{% endif %}
+{% endblock %}
