@@ -1,21 +1,48 @@
 from flask import (
-    Blueprint, abort, render_template, redirect, url_for, flash
+    Blueprint, abort, render_template, redirect, url_for, flash, request
 )
 from flask_login import login_required, current_user
 
 from extensions import db
 from models.trek import Trek
 from models.booking import Booking
-
+from models.user import User
 # Routes for regular users (browse treks, make bookings).
 user_bp = Blueprint("user", __name__)
 
 
 @user_bp.route("/")
 def home():
-    """Browse treks that are open for booking."""
-    treks = Trek.query.filter_by(status="open").order_by(Trek.id.desc()).all()
-    return render_template("user/treks.html", treks=treks)
+    q = request.args.get("q", "").strip()
+    difficulty = request.args.get("difficulty", "").strip()
+    duration = request.args.get("duration", "").strip()
+
+    query = Trek.query.filter_by(status="open")
+
+    if q:
+        like = f"%{q}%"
+        query = query.filter(
+            db.or_(
+                Trek.name.ilike(like),
+                Trek.location.ilike(like)
+            )
+        )
+
+    if difficulty:
+        query = query.filter(Trek.difficulty == difficulty)
+
+    if duration:
+        query = query.filter(Trek.duration == int(duration))
+
+    treks = query.order_by(Trek.id.desc()).all()
+
+    return render_template(
+        "user/treks.html",
+        treks=treks,
+        q=q,
+        difficulty=difficulty,
+        duration=duration
+    )
 
 
 @user_bp.route("/dashboard")
@@ -31,8 +58,47 @@ def dashboard():
     .all()
 )
     return render_template("user/dashboard.html", bookings=bookings)
+@user_bp.route("/profile", methods=["GET", "POST"])
+@login_required
+def profile():
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip().lower()
 
+        if not name or not email:
+            flash("Name and email are required.", "warning")
+            return render_template("user/profile.html")
 
+        # Check whether another account already uses this email
+        existing_user = User.query.filter_by(email=email).first()
+
+        if existing_user and existing_user.id != current_user.id:
+            flash("That email address is already in use.", "danger")
+            return render_template("user/profile.html")
+
+        current_user.name = name
+        current_user.email = email
+
+        db.session.commit()
+
+        flash("Profile updated successfully.", "success")
+        return redirect(url_for("user.profile"))
+
+    return render_template("user/profile.html")
+@user_bp.route("/history")
+@login_required
+def history():
+    bookings = (
+        Booking.query
+        .filter_by(user_id=current_user.id)
+        .order_by(Booking.booking_date.desc())
+        .all()
+    )
+
+    return render_template(
+        "user/history.html",
+        bookings=bookings
+    )
 @user_bp.route("/treks/<int:trek_id>/book", methods=["POST"])
 @login_required
 

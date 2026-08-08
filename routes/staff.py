@@ -34,6 +34,22 @@ def dashboard():
     treks = Trek.query.filter_by(staff_id=current_user.id).all()
     return render_template("staff/dashboard.html", treks=treks)
 
+@staff_bp.route("/treks/<int:trek_id>/participants")
+@approved_staff_required
+def participants(trek_id):
+    trek = Trek.query.get_or_404(trek_id)
+
+    # Only assigned staff can view participants
+    if trek.staff_id != current_user.id:
+        abort(403)
+
+    bookings = Booking.query.filter_by(trek_id=trek.id).all()
+
+    return render_template(
+        "staff/participants.html",
+        trek=trek,
+        bookings=bookings
+    )
 
 @staff_bp.route("/treks/<int:trek_id>/update", methods=["POST"])
 @approved_staff_required
@@ -46,12 +62,17 @@ def update_trek(trek_id):
 
     trek.available_slots = int(request.form.get("available_slots") or 0)
     trek.status = request.form.get("status", trek.status)
+    bookings = Booking.query.filter_by(trek_id=trek.id).all()
 
     if trek.status.lower() in ["cancelled", "closed"]:
-        bookings = Booking.query.filter_by(trek_id=trek.id).all()
-
         for booking in bookings:
             booking.status = "cancelled"
+
+    elif trek.status.lower() == "completed":
+        for booking in bookings:
+            booking.status = "completed"
+
+
 
     db.session.commit()
 

@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask
+from flask import Flask, render_template
 
 from config import Config
 from extensions import db, login_manager
@@ -61,6 +61,8 @@ def create_default_admin():
 
 # Create the app at import time so "flask run" and "python app.py" both work.
 app = create_app()
+
+
 
 
 if __name__ == "__main__":

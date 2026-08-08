@@ -29,7 +29,7 @@
                 <div class="col-auto">
                     <label class="form-label">Status</label>
                     <select name="status" class="form-select">
-                        {% for s in ['open', 'closed', 'cancelled'] %}
+                        {% for s in ['open', 'closed', 'completed', 'cancelled'] %}
                         <option value="{{ s }}"
                                 {{ 'selected' if trek.status == s else '' }}>
                             {{ s }}

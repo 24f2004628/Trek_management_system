@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Trekking History{% endblock %}
+
+{% block content %}
+
+<h2 class="mb-4">Trekking History</h2>
+
+{% if bookings %}
+
+<div class="table-responsive">
+
+    <table class="table table-bordered table-striped">
+
+        <thead>
+            <tr>
+                <th>Trek</th>
+                <th>Location</th>
+                <th>Booking Date</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Booking Status</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+        {% for booking in bookings %}
+
+        <tr>
+            <td>{{ booking.trek.name }}</td>
+
+            <td>{{ booking.trek.location }}</td>
+
+            <td>
+                {{ booking.booking_date.strftime('%Y-%m-%d %H:%M') }}
+            </td>
+
+            <td>
+                {% if booking.trek.start_date %}
+                    {{ booking.trek.start_date }}
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+
+            <td>
+                {% if booking.trek.end_date %}
+                    {{ booking.trek.end_date }}
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+
+            <td>
+                {% if booking.status == "booked" %}
+                    <span class="badge bg-success">Booked</span>
+
+                {% elif booking.status == "completed" %}
+                    <span class="badge bg-primary">Completed</span>
+
+                {% elif booking.status == "cancelled" %}
+                    <span class="badge bg-danger">Cancelled</span>
+
+                {% else %}
+                    <span class="badge bg-secondary">
+                        {{ booking.status }}
+                    </span>
+                {% endif %}
+            </td>
+        </tr>
+
+        {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% else %}
+
+<p class="text-muted">
+    You don't have any trekking history yet.
+</p>
+
+{% endif %}
+
+{% endblock %}

@@ -4,7 +4,42 @@
 
 {% block content %}
 <h2 class="mb-3">Available Treks</h2>
+<form method="GET" class="row g-3 mb-4">
 
+    <div class="col-md-4">
+        <input
+            class="form-control"
+            name="q"
+            placeholder="Search Trek or Location"
+            value="{{ q }}">
+    </div>
+
+    <div class="col-md-3">
+        <select class="form-select" name="difficulty">
+            <option value="">All Difficulty</option>
+            <option value="Easy">Easy</option>
+            <option value="Moderate">Moderate</option>
+            <option value="Hard">Hard</option>
+        </select>
+    </div>
+
+    <div class="col-md-3">
+        <select class="form-select" name="duration">
+            <option value="">Any Duration</option>
+            <option value="1">1 Day</option>
+            <option value="2">2 Days</option>
+            <option value="3">3 Days</option>
+            <option value="5">5 Days</option>
+        </select>
+    </div>
+
+    <div class="col-md-2">
+        <button class="btn btn-primary w-100">
+            Search
+        </button>
+    </div>
+
+</form>
 {% if treks %}
 <div class="row">
     {% for trek in treks %}

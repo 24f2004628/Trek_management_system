@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block title %}Participants{% endblock %}
+
+{% block content %}
+
+<h2>{{ trek.name }} - Participants</h2>
+
+<table class="table table-bordered">
+
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Status</th>
+            <th>Booking Date</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+    {% for booking in bookings %}
+
+    <tr>
+
+        <td>{{ booking.user.name }}</td>
+
+        <td>{{ booking.user.email }}</td>
+
+        <td>{{ booking.status }}</td>
+
+        <td>{{ booking.booking_date }}</td>
+
+    </tr>
+
+    {% endfor %}
+
+    </tbody>
+
+</table>
+
+{% endblock %}
