@@ -15,6 +15,7 @@ from models.booking import Booking
 admin_bp = Blueprint("admin", __name__, url_prefix="/admin")
 
 
+
 def admin_required(view):
     """Allow only logged-in admins to access the wrapped view."""
     @wraps(view)
@@ -32,6 +33,10 @@ def parse_date(value):
         return None
     return datetime.strptime(value, "%Y-%m-%d").date()
 
+@admin_bp.route("/admin-app")
+@admin_required
+def vue_admin():
+    return render_template("vue_admin.html")
 
 # ---------------------------------------------------------------------------
 # Dashboard overview
@@ -56,6 +61,7 @@ def dashboard():
         pending_staff=pending_staff,
         recent_bookings=recent_bookings,
     )
+
 
 
 # ---------------------------------------------------------------------------

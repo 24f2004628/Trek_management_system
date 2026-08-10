@@ -44,6 +44,9 @@ def home():
         duration=duration
     )
 
+@user_bp.route("/app")
+def vue_app():
+    return render_template("vue_app.html")
 
 @user_bp.route("/dashboard")
 @login_required

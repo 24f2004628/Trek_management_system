@@ -26,12 +26,13 @@ def create_app():
     from routes.admin import admin_bp
     from routes.staff import staff_bp
     from routes.user import user_bp
+    from routes.api import api_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(admin_bp)
     app.register_blueprint(staff_bp)
     app.register_blueprint(user_bp)
-
+    app.register_blueprint(api_bp)
     # Create the database tables (if they do not already exist) and make
     # sure the default admin account exists.
     with app.app_context():

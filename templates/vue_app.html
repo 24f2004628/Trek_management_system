@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Trek Management System</title>
+
+    <!-- Bootstrap -->
+    <link
+        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+        rel="stylesheet"
+    >
+
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+    <style>
+        body {
+            background: #f5f7fa;
+        }
+
+        .navbar-brand {
+            font-weight: 700;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #198754, #0d6efd);
+            color: white;
+            padding: 60px 0;
+        }
+
+        .trek-card {
+            transition: 0.2s;
+        }
+
+        .trek-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .stat-card {
+            border: 0;
+            border-radius: 15px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="app">
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-dark bg-dark">
+        <div class="container">
+
+            <a class="navbar-brand" href="#">
+                🏔️ Trek Management
+            </a>
+
+            <div>
+                <span
+                    v-if="user"
+                    class="text-white me-3"
+                    v-text="user.name">
+                </span>
+
+                <button
+                    v-if="user"
+                    class="btn btn-outline-light btn-sm"
+                    @click="logout"
+                >
+                    Logout
+                </button>
+
+                <button
+                    v-else
+                    class="btn btn-success btn-sm"
+                    @click="showLogin = true"
+                >
+                    Login
+                </button>
+            </div>
+
+        </div>
+    </nav>
+
+
+    <!-- HERO -->
+    <section class="hero">
+        <div class="container">
+
+            <h1 class="display-5 fw-bold">
+                Explore Your Next Adventure
+            </h1>
+
+            <p class="lead">
+                Discover and book amazing trekking experiences.
+            </p>
+
+        </div>
+    </section>
+
+
+    <!-- MAIN -->
+    <div class="container py-5">
+
+        <!-- ALERT -->
+        <div
+            v-if="message"
+            class="alert"
+            :class="'alert-' + messageType"
+        >
+            {{ message }}
+        </div>
+
+
+        <!-- SEARCH -->
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+
+                <div class="row g-3">
+
+                    <div class="col-md-6">
+
+                        <input
+                            v-model="search"
+                            @input="loadTreks"
+                            type="text"
+                            class="form-control"
+                            placeholder="Search trek or location..."
+                        >
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <select
+                            v-model="difficulty"
+                            @change="loadTreks"
+                            class="form-select"
+                        >
+
+                            <option value="">
+                                All difficulties
+                            </option>
+
+                            <option value="Easy">
+                                Easy
+                            </option>
+
+                            <option value="Medium">
+                                Medium
+                            </option>
+
+                            <option value="Hard">
+                                Hard
+                            </option>
+
+                        </select>
+
+                    </div>
+
+                    <div class="col-md-3">
+
+                        <button
+                            class="btn btn-secondary w-100"
+                            @click="resetFilters"
+                        >
+                            Reset
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+
+        <!-- TREKS -->
+        <div class="row g-4">
+
+            <div
+                v-for="trek in treks"
+                :key="trek.id"
+                class="col-md-6 col-lg-4"
+            >
+
+                <div class="card trek-card shadow-sm h-100">
+
+                    <div class="card-body">
+
+                        <span
+                            class="badge mb-2"
+                            :class="difficultyBadge(trek.difficulty)"
+                            v-text="trek.difficulty || 'Not specified'"
+                        ></span>
+
+                        <h4 v-text="trek.name"></h4>
+
+                        <p class="text-muted">
+                            📍 <span v-text="trek.location"></span>
+                        </p>
+
+                        <p v-text="trek.description || 'No description available.'"></p>
+
+                        <hr>
+
+                        <div class="d-flex justify-content-between">
+
+                            <span>
+                                ⏱️ <span v-text="trek.duration"></span> days
+                            </span>
+
+                            <span>
+                                👥 <span v-text="trek.available_slots"></span> slots
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <div class="card-footer bg-white border-0">
+
+                        <button
+                            class="btn btn-success w-100"
+                            @click="bookTrek(trek.id)"
+                        >
+                            Book Trek
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- EMPTY -->
+        <div
+            v-if="treks.length === 0"
+            class="text-center py-5"
+        >
+            <h4>No treks found</h4>
+            <p class="text-muted">
+                Try changing your search.
+            </p>
+        </div>
+
+
+        <!-- USER BOOKINGS -->
+        <div
+            v-if="user && bookings.length"
+            class="mt-5"
+        >
+
+            <h2 class="mb-4">
+                My Bookings
+            </h2>
+            <button
+                v-if="user"
+                class="btn btn-primary"
+                @click="exportBookings"
+            >
+                Export Booking History
+            </button>
+            <div class="table-responsive">
+
+                <table class="table table-bordered bg-white">
+
+                    <thead>
+                        <tr>
+                            <th>Trek</th>
+                            <th>Location</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        <tr
+                            v-for="booking in bookings"
+                            :key="booking.id"
+                        >
+
+                            <td v-text="booking.trek_name"></td>
+
+                            <td v-text="booking.location"></td>
+
+                            <td v-text="formatDate(booking.booking_date)"></td>
+
+                            <td>
+                                <span
+                                    class="badge bg-success"
+                                    v-text="booking.status">
+                                </span>
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- LOGIN MODAL -->
+    <div
+        v-if="showLogin"
+        class="modal d-block"
+        style="background: rgba(0,0,0,.6)"
+    >
+
+        <div class="modal-dialog">
+
+            <div class="modal-content">
+
+                <div class="modal-header">
+
+                    <h5 class="modal-title">
+                        Login
+                    </h5>
+
+                    <button
+                        class="btn-close"
+                        @click="showLogin = false"
+                    ></button>
+
+                </div>
+
+                <div class="modal-body">
+
+                    <input
+                        v-model="loginForm.email"
+                        type="email"
+                        class="form-control mb-3"
+                        placeholder="Email"
+                    >
+
+                    <input
+                        v-model="loginForm.password"
+                        type="password"
+                        class="form-control"
+                        placeholder="Password"
+                        @keyup.enter="login"
+                    >
+
+                </div>
+
+                <div class="modal-footer">
+
+                    <button
+                        class="btn btn-secondary"
+                        @click="showLogin = false"
+                    >
+                        Cancel
+                    </button>
+
+                    <button
+                        class="btn btn-success"
+                        @click="login"
+                    >
+                        Login
+                    </button>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<script src="{{ url_for('static', filename='js/vue_app.js') }}"></script>
+
+</body>
+</html>

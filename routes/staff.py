@@ -51,10 +51,18 @@ def participants(trek_id):
         bookings=bookings
     )
 
+@staff_bp.route("/staff-app")
+@approved_staff_required
+def vue_staff():
+    return render_template("vue_staff.html")
+
+
+
 @staff_bp.route("/treks/<int:trek_id>/update", methods=["POST"])
 @approved_staff_required
 def update_trek(trek_id):
     trek = Trek.query.get_or_404(trek_id)
+    
 
     # Only the assigned staff member may edit this trek.
     if trek.staff_id != current_user.id:
